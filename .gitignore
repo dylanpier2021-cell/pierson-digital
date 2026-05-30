@@ -1,0 +1,9 @@
+# Video files — too large for GitHub, host on Vimeo or serve separately
+*.mp4
+*.mov
+*.avi
+*.webm
+
+# OS files
+.DS_Store
+Thumbs.db
