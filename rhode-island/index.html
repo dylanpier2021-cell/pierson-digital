@@ -23,16 +23,33 @@
 
 <header id="site-header">
   <nav class="site-nav">
-    <a href="/" class="logo">Pierson <span>Digital</span></a>
+    <a href="/" class="logo logo--img"><img src="../assets/logo.png" alt="Pierson Digital" class="logo-img"></a>
     <div class="nav-menu" id="nav-menu">
       <a href="/" class="nav-item">Home</a>
       <div class="has-dropdown">
         <button class="drop-toggle">Services</button>
-        <div class="dropdown">
-          <a href="/seo">SEO</a>
-          <a href="/meta-ads">Meta Ads</a>
-          <a href="/websites">Websites</a>
-          <a href="/crm">CRM</a>
+
+        <div class="dropdown mega-drop">
+          <a href="/seo" class="mega-item">
+            <div class="mega-item__title">SEO</div>
+            <div class="mega-item__desc">Page-1 rankings + free custom website</div>
+            <div class="mega-item__price">$997/mo</div>
+          </a>
+          <a href="/meta-ads" class="mega-item">
+            <div class="mega-item__title">Meta Ads</div>
+            <div class="mega-item__desc">Facebook &amp; Instagram leads that convert</div>
+            <div class="mega-item__price">$997/mo</div>
+          </a>
+          <a href="/websites" class="mega-item">
+            <div class="mega-item__title">Websites</div>
+            <div class="mega-item__desc">Custom sites built to generate leads</div>
+            <div class="mega-item__price">$97/mo or $1,000</div>
+          </a>
+          <a href="/crm" class="mega-item">
+            <div class="mega-item__title">CRM</div>
+            <div class="mega-item__desc">Automate follow-up &amp; close more deals</div>
+            <div class="mega-item__price">$297/mo</div>
+          </a>
         </div>
       </div>
       <a href="/champaign" class="nav-item">Champaign, IL</a>
@@ -207,7 +224,7 @@
         <p class="section-body" style="margin:0 auto 32px;">15 minutes. We&rsquo;ll review your current digital presence and outline exactly what we&rsquo;d do to grow your business in Rhode Island.</p>
       </div>
       <div class="ghl-calendar-wrap">
-        <iframe src="https://api.leadconnectorhq.com/widget/booking/svYXBBLLQuy6KLwj50sb" style="width:100%;border:none;overflow:hidden;" scrolling="no" id="cal-rhode-island"></iframe>
+        <iframe src="https://api.leadconnectorhq.com/widget/booking/WD29jXNzNI40oG2KgKFG" style="width:100%;border:none;overflow:hidden;" scrolling="no" id="cal-rhode-island"></iframe>
       </div>
     </div>
   </div>
@@ -268,5 +285,16 @@
 </footer>
 
 <script src="../assets/js/main.js"></script>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="scroll-progress" id="scroll-progress"></div>
+<!-- STICKY CTA -->
+<div class="sticky-cta" id="sticky-cta">
+  <div class="sticky-cta__inner">
+    <p>Ready to grow? <strong>Book your free strategy call.</strong></p>
+    <a href="#book" class="btn-primary sticky-cta__btn">Book a Call</a>
+  </div>
+  <button class="sticky-cta__close" id="sticky-cta-close" aria-label="Close">&#10005;</button>
+</div>
 </body>
 </html>

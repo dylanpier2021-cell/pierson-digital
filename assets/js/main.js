@@ -1,3 +1,7 @@
+// ================================================================
+// PIERSON DIGITAL — main.js v2 (premium)
+// ================================================================
+
 // FAQ accordion
 document.querySelectorAll('.faq-q').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -8,12 +12,13 @@ document.querySelectorAll('.faq-q').forEach(btn => {
   });
 });
 
-// Sticky nav — add .scrolled class after 80px scroll
+// Sticky nav — scrolled class after 80px; immediate on inner pages
 const siteHeader = document.getElementById('site-header');
 if (siteHeader) {
   const onScroll = () => siteHeader.classList.toggle('scrolled', window.scrollY > 80);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+  if (document.querySelector('.inner-hero')) siteHeader.classList.add('scrolled');
 }
 
 // Mobile nav toggle
@@ -26,7 +31,6 @@ if (navToggle && navMenu) {
     navToggle.setAttribute('aria-expanded', open);
     document.body.style.overflow = open ? 'hidden' : '';
   });
-  // Close on any nav link click (mobile)
   navMenu.querySelectorAll('a').forEach(a => {
     a.addEventListener('click', () => {
       navMenu.classList.remove('open');
@@ -36,13 +40,13 @@ if (navToggle && navMenu) {
   });
 }
 
-// Dropdown — desktop
+// Dropdown — desktop toggle
 document.querySelectorAll('.has-dropdown').forEach(item => {
   const toggle = item.querySelector('.drop-toggle');
   if (!toggle) return;
   toggle.addEventListener('click', e => {
     e.stopPropagation();
-    const isOpen = item.classList.toggle('open');
+    item.classList.toggle('open');
     document.querySelectorAll('.has-dropdown').forEach(other => {
       if (other !== item) other.classList.remove('open');
     });
@@ -52,9 +56,52 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.has-dropdown.open').forEach(i => i.classList.remove('open'));
 });
 
-// Scroll reveal — IntersectionObserver
-const reveals = document.querySelectorAll('.reveal');
-if (reveals.length && 'IntersectionObserver' in window) {
+// Smooth scroll for in-page anchors
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href').slice(1);
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.pushState(null, '', '#' + id);
+    }
+  });
+});
+
+// Scroll progress bar
+const progressBar = document.getElementById('scroll-progress');
+if (progressBar) {
+  window.addEventListener('scroll', () => {
+    const scrollTop  = window.scrollY;
+    const docHeight  = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+  }, { passive: true });
+}
+
+// Hero parallax (photo-hero background)
+const photoHero = document.querySelector('.photo-hero');
+if (photoHero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  window.addEventListener('scroll', () => {
+    photoHero.style.backgroundPositionY = `calc(50% + ${window.scrollY * 0.22}px)`;
+  }, { passive: true });
+}
+
+// Hero headline stagger — split <br> lines into animated .hero-line spans
+const heroH1 = document.querySelector('.photo-hero__headline');
+if (heroH1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const parts = heroH1.innerHTML.split('<br>');
+  if (parts.length > 1) {
+    heroH1.innerHTML = parts
+      .map((line, i) => `<span class="hero-line" style="animation-delay:${0.08 + i * 0.18}s">${line.trim()}</span>`)
+      .join('<br>');
+  }
+}
+
+// Scroll reveal — combined observer for all reveal variants
+const allReveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+if (allReveals.length && 'IntersectionObserver' in window) {
   const revealObs = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -62,21 +109,27 @@ if (reveals.length && 'IntersectionObserver' in window) {
         revealObs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  reveals.forEach(el => revealObs.observe(el));
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  allReveals.forEach(el => revealObs.observe(el));
 }
 
-// Stat counters — count up when element enters view
+// Stat counters — eased count-up with pop finish
 function animateCounter(el) {
-  const target  = parseInt(el.dataset.target, 10);
-  const suffix  = el.dataset.suffix || '';
-  const dur     = 1800;
-  const step    = target / (dur / 16);
-  let cur = 0;
-  const tick = () => {
-    cur = Math.min(cur + step, target);
-    el.textContent = Math.floor(cur).toLocaleString() + suffix;
-    if (cur < target) requestAnimationFrame(tick);
+  const target = parseInt(el.dataset.target, 10);
+  if (isNaN(target)) return;
+  const suffix    = el.dataset.suffix || '';
+  const startTime = performance.now();
+  const dur       = 1800;
+  const tick = now => {
+    const p   = Math.min((now - startTime) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 4);
+    el.textContent = Math.round(ease * target).toLocaleString() + suffix;
+    if (p < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      el.textContent = target.toLocaleString() + suffix;
+      el.classList.add('counter-done');
+    }
   };
   requestAnimationFrame(tick);
 }
@@ -93,31 +146,75 @@ if (counters.length && 'IntersectionObserver' in window) {
   counters.forEach(el => cntObs.observe(el));
 }
 
-// GHL calendar iFrame auto-resize
+// 3D card tilt — hover-capable pointer + no reduce-motion
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('.svc-card, .nprice-card, .why-card, .pairs-card').forEach(card => {
+    card.classList.add('tilt-card');
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width  - 0.5) * 12;
+      const y = ((e.clientY - r.top)  / r.height - 0.5) * -12;
+      card.style.transform = `perspective(600px) rotateY(${x}deg) rotateX(${y}deg) translateZ(5px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+}
+
+// Sticky CTA bar — show after hero
+const stickyCta   = document.getElementById('sticky-cta');
+const stickyClose = document.getElementById('sticky-cta-close');
+if (stickyCta) {
+  let dismissed = false;
+  const heroEl  = document.querySelector('.photo-hero, .inner-hero');
+  const showCta = () => {
+    if (dismissed) return;
+    const threshold = heroEl ? heroEl.offsetHeight * 0.85 : 400;
+    stickyCta.classList.toggle('visible', window.scrollY > threshold);
+  };
+  window.addEventListener('scroll', showCta, { passive: true });
+  if (stickyClose) {
+    stickyClose.addEventListener('click', () => {
+      dismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  }
+}
+
+// Primary CTA pulse
+const heroCta = document.querySelector('.photo-hero .btn-primary, .inner-hero .btn-primary');
+if (heroCta) heroCta.classList.add('cta-pulse');
+
+// GHL calendar iFrame auto-resize + Meta Pixel booking event
 window.addEventListener('message', e => {
-  if (e.data && e.data.action === 'resize' && e.data.height) {
+  if (!e.data || typeof e.data !== 'object') return;
+  if (e.data.action === 'resize' && e.data.height) {
     document.querySelectorAll('iframe[id^="cal-"]').forEach(f => {
       f.style.height = e.data.height + 'px';
     });
   }
-});
+  const type = String(e.data.type || e.data.action || '').toLowerCase();
+  if (['bookingscheduled','booking','appointmentscheduled','scheduled'].some(t => type.includes(t))) {
+    if (typeof fbq !== 'undefined') fbq('track', 'Schedule');
+  }
+}, false);
 
-// ---- FORM SUBMISSION — GoHighLevel Webhook ----
+// ── FORM SUBMISSION — GoHighLevel Webhook ──────────────────────
 const WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/xbWRB6dunUVALzKIgbMB/webhook-trigger/659c79b5-8384-4a3e-9f89-ffadc3dec272';
-const form = document.getElementById('claim-form');
-if (form) {
-  form.addEventListener('submit', async e => {
+const claimForm = document.getElementById('claim-form');
+if (claimForm) {
+  claimForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = form.querySelector('.submit-btn');
+    const btn = claimForm.querySelector('.submit-btn');
     btn.textContent = 'Sending...';
     btn.disabled = true;
     const data = {
-      firstName:    form.querySelector('[name="firstName"]').value.trim(),
-      lastName:     form.querySelector('[name="lastName"]').value.trim(),
-      businessName: form.querySelector('[name="businessName"]').value.trim(),
-      phone:        form.querySelector('[name="phone"]').value.trim(),
-      email:        form.querySelector('[name="email"]').value.trim(),
-      trade:        form.querySelector('[name="trade"]').value,
+      firstName:    claimForm.querySelector('[name="firstName"]').value.trim(),
+      lastName:     claimForm.querySelector('[name="lastName"]').value.trim(),
+      businessName: claimForm.querySelector('[name="businessName"]').value.trim(),
+      phone:        claimForm.querySelector('[name="phone"]').value.trim(),
+      email:        claimForm.querySelector('[name="email"]').value.trim(),
+      trade:        claimForm.querySelector('[name="trade"]').value,
     };
     try {
       await fetch(WEBHOOK_URL, {
@@ -126,7 +223,7 @@ if (form) {
         mode: 'no-cors',
         body: JSON.stringify(data),
       });
-      form.closest('.form-box').innerHTML = `
+      claimForm.closest('.form-box').innerHTML = `
         <div style="text-align:center;padding:20px 0;">
           <div style="font-size:48px;margin-bottom:16px;">&#10003;</div>
           <h3 style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">You're In.</h3>

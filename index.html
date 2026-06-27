@@ -39,16 +39,33 @@
 <!-- SITE HEADER / NAV -->
 <header id="site-header">
   <nav class="site-nav">
-    <a href="/" class="logo">Pierson <span>Digital</span></a>
+    <a href="/" class="logo logo--img"><img src="assets/logo.png" alt="Pierson Digital" class="logo-img"></a>
     <div class="nav-menu" id="nav-menu">
       <a href="/" class="nav-item active">Home</a>
       <div class="has-dropdown">
         <button class="drop-toggle">Services</button>
-        <div class="dropdown">
-          <a href="/seo">SEO</a>
-          <a href="/meta-ads">Meta Ads</a>
-          <a href="/websites">Websites</a>
-          <a href="/crm">CRM</a>
+
+        <div class="dropdown mega-drop">
+          <a href="/seo" class="mega-item">
+            <div class="mega-item__title">SEO</div>
+            <div class="mega-item__desc">Page-1 rankings + free custom website</div>
+            <div class="mega-item__price">$997/mo</div>
+          </a>
+          <a href="/meta-ads" class="mega-item">
+            <div class="mega-item__title">Meta Ads</div>
+            <div class="mega-item__desc">Facebook &amp; Instagram leads that convert</div>
+            <div class="mega-item__price">$997/mo</div>
+          </a>
+          <a href="/websites" class="mega-item">
+            <div class="mega-item__title">Websites</div>
+            <div class="mega-item__desc">Custom sites built to generate leads</div>
+            <div class="mega-item__price">$97/mo or $1,000</div>
+          </a>
+          <a href="/crm" class="mega-item">
+            <div class="mega-item__title">CRM</div>
+            <div class="mega-item__desc">Automate follow-up &amp; close more deals</div>
+            <div class="mega-item__price">$297/mo</div>
+          </a>
         </div>
       </div>
       <a href="/champaign" class="nav-item">Champaign, IL</a>
@@ -63,10 +80,15 @@
 <!-- PHOTO HERO -->
 <div class="photo-hero" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80&auto=format&fit=crop');">
   <div class="photo-hero__overlay"></div>
+  <div class="aurora-wrap" aria-hidden="true">
+    <div class="aurora-blob aurora-blob--1"></div>
+    <div class="aurora-blob aurora-blob--2"></div>
+    <div class="aurora-blob aurora-blob--3"></div>
+  </div>
   <div class="photo-hero__inner">
     <div class="photo-hero__eyebrow">National Digital Marketing Agency</div>
     <h1 class="photo-hero__headline reveal">
-      Grow Your<br><span class="accent">Business Online.</span>
+      Grow Your<br><span class="shimmer-text">Business Online.</span>
     </h1>
     <p class="photo-hero__sub reveal delay-1">
       SEO, Meta Ads, custom websites, and CRM — one team delivering real results for businesses across all 50 states.
@@ -108,6 +130,30 @@
   </div>
 </div>
 
+<!-- TRUST MARQUEE -->
+<div class="marquee-track" aria-hidden="true">
+  <div class="marquee-inner">
+    <span class="marquee-item">10,000+ Companies</span>
+    <span class="marquee-item">All 50 States</span>
+    <span class="marquee-item">SEO</span>
+    <span class="marquee-item">Meta Ads</span>
+    <span class="marquee-item">Custom Websites</span>
+    <span class="marquee-item">CRM &amp; Automation</span>
+    <span class="marquee-item">No Contracts</span>
+    <span class="marquee-item">Results-Focused</span>
+    <span class="marquee-item">5–7 Day Launch</span>
+    <span class="marquee-item">10,000+ Companies</span>
+    <span class="marquee-item">All 50 States</span>
+    <span class="marquee-item">SEO</span>
+    <span class="marquee-item">Meta Ads</span>
+    <span class="marquee-item">Custom Websites</span>
+    <span class="marquee-item">CRM &amp; Automation</span>
+    <span class="marquee-item">No Contracts</span>
+    <span class="marquee-item">Results-Focused</span>
+    <span class="marquee-item">5–7 Day Launch</span>
+  </div>
+</div>
+
 <!-- SERVICES SECTION -->
 <div id="services" class="nsection">
   <div class="nsection__inner">
@@ -118,8 +164,8 @@
     </div>
     <div class="services-grid">
       <a href="/seo" class="svc-card reveal delay-1">
-        <div class="svc-card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#7BAAF7" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <div class="svc-card__img">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&h=280&q=80" alt="SEO analytics dashboard showing search rankings and organic traffic growth" loading="lazy" width="600" height="280">
         </div>
         <div class="svc-card__price">$997/mo</div>
         <div class="svc-card__title">Search Engine Optimization</div>
@@ -127,8 +173,8 @@
         <span class="svc-card__cta">Explore SEO</span>
       </a>
       <a href="/meta-ads" class="svc-card reveal delay-2">
-        <div class="svc-card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#7BAAF7" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+        <div class="svc-card__img">
+          <img src="https://images.unsplash.com/photo-1611262588024-d12430b98920?auto=format&fit=crop&w=600&h=280&q=80" alt="Facebook and Instagram Meta Ads social media marketing on smartphone" loading="lazy" width="600" height="280">
         </div>
         <div class="svc-card__price">$997/mo</div>
         <div class="svc-card__title">Meta Ads</div>
@@ -136,8 +182,8 @@
         <span class="svc-card__cta">Explore Meta Ads</span>
       </a>
       <a href="/websites" class="svc-card reveal delay-3">
-        <div class="svc-card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#7BAAF7" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 7h.01M10 7h4"/></svg>
+        <div class="svc-card__img">
+          <img src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=600&h=280&q=80" alt="Custom website design displayed on laptop showing responsive web design" loading="lazy" width="600" height="280">
         </div>
         <div class="svc-card__price">$97/mo or $1,000 outright</div>
         <div class="svc-card__title">Custom Websites</div>
@@ -145,8 +191,8 @@
         <span class="svc-card__cta">Explore Websites</span>
       </a>
       <a href="/crm" class="svc-card reveal delay-4">
-        <div class="svc-card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#7BAAF7" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/></svg>
+        <div class="svc-card__img">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&h=280&q=80" alt="Business team using CRM software to manage customer relationships and sales pipeline" loading="lazy" width="600" height="280">
         </div>
         <div class="svc-card__price">$297/mo</div>
         <div class="svc-card__title">CRM &amp; Automation</div>
@@ -313,10 +359,10 @@
       </div>
       <div class="ghl-calendar-wrap reveal delay-1">
         <iframe
-          src="https://api.leadconnectorhq.com/widget/booking/svYXBBLLQuy6KLwj50sb"
+          src="https://api.leadconnectorhq.com/widget/booking/WD29jXNzNI40oG2KgKFG"
           style="width:100%;border:none;overflow:hidden;"
           scrolling="no"
-          id="cal-svYXBBLLQuy6KLwj50sb"
+          id="cal-WD29jXNzNI40oG2KgKFG"
         ></iframe>
       </div>
     </div>
@@ -454,5 +500,16 @@
 
 <script src="assets/js/main.js"></script>
 <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="scroll-progress" id="scroll-progress"></div>
+<!-- STICKY CTA -->
+<div class="sticky-cta" id="sticky-cta">
+  <div class="sticky-cta__inner">
+    <p>Ready to grow? <strong>Book your free strategy call.</strong></p>
+    <a href="#book" class="btn-primary sticky-cta__btn">Book a Call</a>
+  </div>
+  <button class="sticky-cta__close" id="sticky-cta-close" aria-label="Close">&#10005;</button>
+</div>
 </body>
 </html>
