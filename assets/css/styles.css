@@ -1853,7 +1853,8 @@ a.logo.logo--img { color: transparent; padding: 0; }
 
 /* ── 14. FAQ ──────────────────────────────────────────────────── */
 .faq-item {
-  border-bottom-color: rgba(13,26,46,0.08) !important;
+  background: #FFFFFF !important;
+  border-color: rgba(13,26,46,0.1) !important;
 }
 .faq-q {
   color: #0D1A2E !important;
@@ -2310,4 +2311,14 @@ a.logo.logo--img { color: transparent; padding: 0; }
   display: inline-block;
   width: 100%;
   text-align: center;
+}
+
+/* ── 32. SECONDARY BUTTON ON LIGHT BACKGROUNDS ─────────────── */
+.inner-hero .btn-secondary {
+  border-color: rgba(13,26,46,0.4);
+  color: #0D1A2E;
+}
+.inner-hero .btn-secondary:hover {
+  border-color: rgba(13,26,46,0.75);
+  background: rgba(13,26,46,0.06);
 }
