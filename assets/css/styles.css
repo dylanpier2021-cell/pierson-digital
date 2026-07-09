@@ -186,7 +186,7 @@ nav {
   padding: 28px 24px;
 }
 .proof-inner {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
@@ -872,7 +872,7 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
 .site-nav {
   display: flex;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 22px 40px;
   transition: padding 0.3s;
@@ -1007,7 +1007,7 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
 .photo-hero__inner {
   position: relative;
   z-index: 1;
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 160px 40px 100px;
   text-align: center;
@@ -1082,6 +1082,9 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
   padding: 160px 40px 88px;
   text-align: center;
   overflow: hidden;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 .inner-hero--plain {
   background: var(--navy);
@@ -1159,6 +1162,9 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
 
 .nsection {
   padding: 96px 40px;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 .nsection--alt {
   background: var(--navy2);
@@ -1178,7 +1184,7 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
   background: radial-gradient(ellipse, rgba(37,99,235,0.07) 0%, transparent 65%);
   pointer-events: none;
 }
-.nsection__inner { max-width: 1140px; margin: 0 auto; }
+.nsection__inner { max-width: 1400px; margin: 0 auto; }
 .nsection__header { max-width: 720px; margin-bottom: 56px; }
 .nsection__header--center { text-align: center; margin: 0 auto 56px; }
 .gradient-divider {
@@ -1430,7 +1436,7 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
   border-top: 1px solid rgba(255,255,255,0.06);
   padding: 72px 40px 32px;
 }
-.site-footer .footer-inner { max-width: 1140px; margin: 0 auto; }
+.site-footer .footer-inner { max-width: 1400px; margin: 0 auto; }
 .site-footer .footer-top {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -2311,6 +2317,14 @@ a.logo.logo--img { color: transparent; padding: 0; }
   display: inline-block;
   width: 100%;
   text-align: center;
+}
+/* State pages: bundle + exactly 1 other card — center the lone card */
+.nprice-bundle ~ .nprice-card:last-child:nth-child(2) {
+  grid-column: 1 / -1;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 /* ── 32. SECONDARY BUTTON ON LIGHT BACKGROUNDS ─────────────── */
