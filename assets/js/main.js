@@ -199,6 +199,160 @@ window.addEventListener('message', e => {
   }
 }, false);
 
+// =================================================================
+// LANDING PAGE PREMIUM — scoped to pages with .hero (no .site-nav)
+// =================================================================
+(function () {
+  'use strict';
+
+  const isLP   = !!document.querySelector('.hero') && !document.querySelector('.site-nav');
+  if (!isLP) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── 1. NAV: transparent at top → blur on scroll ──────────────
+  const lpNav = document.querySelector('nav');
+  if (lpNav) {
+    const syncNav = () => lpNav.classList.toggle('lp-scrolled', window.scrollY > 50);
+    window.addEventListener('scroll', syncNav, { passive: true });
+    syncNav();
+  }
+
+  // ── 2. NOISE TEXTURE OVERLAY ─────────────────────────────────
+  const noiseSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">' +
+    '<filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/>' +
+    '<feColorMatrix type="saturate" values="0"/></filter>' +
+    '<rect width="256" height="256" filter="url(#n)" opacity="1"/></svg>';
+  const noiseEl = document.createElement('div');
+  noiseEl.setAttribute('aria-hidden', 'true');
+  noiseEl.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:5;' +
+    'background-image:url("data:image/svg+xml,' + encodeURIComponent(noiseSvg) + '");' +
+    'background-size:256px 256px;opacity:0.035;';
+  document.body.appendChild(noiseEl);
+
+  // ── 3. HERO BUTTON ARROW ─────────────────────────────────────
+  const heroBtn = document.querySelector('.hero .btn-primary');
+  if (heroBtn) {
+    const arrow = document.createElement('span');
+    arrow.className = 'btn-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '→';
+    heroBtn.appendChild(arrow);
+  }
+
+  // ── 4. TRUST MARQUEE — inject after proof bar ─────────────────
+  const proofBar = document.querySelector('.proof-bar');
+  if (proofBar) {
+    const trades = ['HVAC','Roofing','Plumbing','Landscaping',
+                    'Epoxy Coating','Electrical','Painting','General Contracting'];
+    const chunk = trades.map(t =>
+      '<span class="lp-marquee-item">' + t + '</span><span class="lp-marquee-sep" aria-hidden="true">•</span>'
+    ).join('');
+    const mEl = document.createElement('div');
+    mEl.className = 'lp-marquee';
+    mEl.setAttribute('aria-hidden', 'true');
+    mEl.innerHTML = '<div class="lp-marquee-inner">' + chunk + chunk + '</div>';
+    proofBar.insertAdjacentElement('afterend', mEl);
+  }
+
+  // ── 5. PROOF BAR COUNT-UP ─────────────────────────────────────
+  if (proofBar && 'IntersectionObserver' in window) {
+    var countCfg = { '1,000+': [1000,'','+'], '$297': [297,'$',''], '15': [15,'',''] };
+    proofBar.querySelectorAll('.proof-num span').forEach(function(span) {
+      var cfg = countCfg[span.textContent.trim()];
+      if (!cfg) return;
+      span.dataset.lpTarget = cfg[0];
+      span.dataset.lpPrefix = cfg[1];
+      span.dataset.lpSuffix = cfg[2];
+      span.textContent = cfg[1] + '0' + cfg[2];
+    });
+    var cntObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelectorAll('[data-lp-target]').forEach(function(el) {
+          var target = +el.dataset.lpTarget;
+          var prefix = el.dataset.lpPrefix;
+          var suffix = el.dataset.lpSuffix;
+          var t0 = performance.now();
+          (function tick(now) {
+            var p = Math.min((now - t0) / 1600, 1);
+            var e = 1 - Math.pow(1 - p, 4);
+            el.textContent = prefix + Math.round(e * target).toLocaleString() + suffix;
+            if (p < 1) requestAnimationFrame(tick);
+          })(t0);
+        });
+        cntObs.unobserve(entry.target);
+      });
+    }, { threshold: 0.4 });
+    cntObs.observe(proofBar);
+  }
+
+  // ── 6. SCROLL REVEAL — stagger grids, fade sections ──────────
+  if (!reduced && 'IntersectionObserver' in window) {
+    ['.problem-grid','.features-grid','.testimonials-grid','.steps'].forEach(function(sel) {
+      var g = document.querySelector(sel);
+      if (!g) return;
+      Array.from(g.children).forEach(function(child, i) {
+        child.classList.add('lp-reveal');
+        if (i % 3 === 1) child.classList.add('d1');
+        if (i % 3 === 2) child.classList.add('d2');
+      });
+    });
+    document.querySelectorAll(
+      '.section-label,.section-title,.section-body,.price-card,.form-box,.cta-inner'
+    ).forEach(function(el) {
+      if (!el.closest('.lp-reveal')) el.classList.add('lp-reveal');
+    });
+    var lpObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('lp-in'); lpObs.unobserve(e.target); }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -28px 0px' });
+    document.querySelectorAll('.lp-reveal').forEach(function(el) { lpObs.observe(el); });
+  }
+
+  // ── 7. FOOTER MULTI-COLUMN ───────────────────────────────────
+  var footer = document.querySelector('footer');
+  if (footer) {
+    var logo  = footer.querySelector('.footer-logo');
+    var allPs = Array.from(footer.querySelectorAll('p'));
+    if (logo && allPs.length >= 3) {
+      var tagline = allPs[0];
+      var contact = allPs[1];
+      var legal   = allPs[allPs.length - 1];
+
+      var main = document.createElement('div');
+      main.className = 'lp-footer-main';
+
+      var brand = document.createElement('div');
+      brand.className = 'lp-footer-brand';
+      brand.appendChild(logo.cloneNode(true));
+      brand.appendChild(tagline.cloneNode(true));
+
+      var contactDiv = document.createElement('div');
+      contactDiv.className = 'lp-footer-contact';
+      contactDiv.appendChild(contact.cloneNode(true));
+
+      main.appendChild(brand);
+      main.appendChild(contactDiv);
+
+      var hr = document.createElement('hr');
+      hr.className = 'lp-footer-divider';
+
+      var legalDiv = document.createElement('div');
+      legalDiv.className = 'lp-footer-legal';
+      legalDiv.appendChild(legal.cloneNode(true));
+
+      while (footer.firstChild) footer.removeChild(footer.firstChild);
+      footer.style.textAlign = 'left';
+      footer.appendChild(main);
+      footer.appendChild(hr);
+      footer.appendChild(legalDiv);
+    }
+  }
+
+}());
+
 // ── FORM SUBMISSION — GoHighLevel Webhook ──────────────────────
 const WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/xbWRB6dunUVALzKIgbMB/webhook-trigger/659c79b5-8384-4a3e-9f89-ffadc3dec272';
 const claimForm = document.getElementById('claim-form');

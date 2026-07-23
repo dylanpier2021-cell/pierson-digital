@@ -81,7 +81,7 @@ nav {
 .hero {
   max-width: 860px;
   margin: 0 auto;
-  padding: 88px 24px 64px;
+  padding: 120px 24px 80px;
   text-align: center;
 }
 .eyebrow {
@@ -100,10 +100,10 @@ nav {
 .hero h1 {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 900;
-  font-size: clamp(44px, 7vw, 76px);
-  line-height: 0.95;
+  font-size: clamp(48px, 8vw, 92px);
+  line-height: 0.92;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   margin-bottom: 24px;
 }
 .hero h1 .accent { color: var(--green-light); }
@@ -220,9 +220,9 @@ nav {
 
 /* ---- SECTIONS ---- */
 section {
-  max-width: 900px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 88px 24px;
+  padding: 120px 24px;
 }
 .section-label {
   font-family: 'Barlow Condensed', sans-serif;
@@ -693,13 +693,22 @@ section {
 .faq-q .arrow { color: var(--blue-light); font-size: 20px; transition: transform 0.25s; flex-shrink: 0; }
 .faq-item.open .arrow { transform: rotate(180deg); }
 .faq-a {
-  display: none;
-  padding: 0 24px 20px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 24px;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.7;
+  transition: max-height 0.45s cubic-bezier(0.22,1,0.36,1),
+              opacity 0.35s ease 0.05s,
+              padding-bottom 0.35s ease;
 }
-.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-a {
+  max-height: 400px;
+  opacity: 1;
+  padding-bottom: 20px;
+}
 
 /* ---- FOOTER ---- */
 footer {
@@ -808,7 +817,8 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
 
   /* FAQ */
   .faq-q      { padding: 18px 16px; font-size: 15px; }
-  .faq-a      { padding: 0 16px 16px; }
+  .faq-a      { padding: 0 16px; }
+  .faq-item.open .faq-a { padding-bottom: 16px; }
 
   /* Buttons */
   .btn-primary { font-size: 18px; padding: 16px 28px; }
@@ -842,6 +852,233 @@ footer p { font-size: 13px; color: var(--muted); max-width: 600px; margin: 0 aut
 
   .ghl-calendar-wrap iframe,
   .ghl-form-wrap  iframe { min-height: 600px; }
+}
+
+/* =================================================================
+   LANDING PAGE PREMIUM — dark-theme upgrades for /landing-page-us/
+   and /variant-b.html. National (light) pages override these via
+   the Premium v2 block further below.
+   ================================================================= */
+
+/* ── LP-1. SELECTION ────────────────────────────────────────── */
+::selection { background: var(--blue); color: #fff; }
+
+/* ── LP-2. NAV — transparent at top, gains blur on scroll ───── */
+nav {
+  background: transparent;
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background 0.35s ease, border-color 0.3s ease,
+              backdrop-filter 0.35s ease, box-shadow 0.3s ease;
+}
+nav.lp-scrolled {
+  background: rgba(6,13,31,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: rgba(255,255,255,0.1);
+  box-shadow: 0 1px 32px rgba(0,0,0,0.25);
+}
+
+/* ── LP-3. HERO — blue glow + dot-grid background ───────────── */
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -160px; left: 50%;
+  transform: translateX(-50%);
+  width: 880px; height: 700px;
+  background: radial-gradient(ellipse at 50% 40%,
+    rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.06) 40%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: -1;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.065) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, black 0%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, black 0%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── LP-4. EYEBROW PULSE ─────────────────────────────────────── */
+@keyframes lp-eyebrow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); border-color: rgba(37,99,235,0.35); }
+  50%       { box-shadow: 0 0 0 5px rgba(37,99,235,0.07); border-color: rgba(37,99,235,0.65); }
+}
+.eyebrow { animation: lp-eyebrow-pulse 3s ease-in-out infinite; }
+
+/* ── LP-5. GRADIENT TEXT FOR .accent / .blue IN HERO H1 ─────── */
+.hero h1 .accent {
+  background: linear-gradient(115deg, var(--green-light) 0%, #86efac 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.hero h1 .blue {
+  background: linear-gradient(115deg, var(--gold) 0%, #fde68a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── LP-6. VSL CINEMA FRAME ──────────────────────────────────── */
+.vsl-wrap { position: relative; }
+.vsl-wrap > div {
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.28),
+              0 24px 64px rgba(37,99,235,0.14),
+              0 8px 24px rgba(0,0,0,0.45);
+}
+.vsl-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -24px; left: 15%; right: 15%;
+  height: 56px;
+  background: radial-gradient(ellipse, rgba(37,99,235,0.28) 0%, transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* ── LP-7. CARD PREMIUM UPGRADES ─────────────────────────────── */
+.problem-card,
+.feature-card,
+.testi-card {
+  background: linear-gradient(155deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.01) 100%),
+              var(--navy2);
+  border-top-color: rgba(255,255,255,0.13);
+  transition: border-color 0.25s, box-shadow 0.3s, transform 0.25s;
+}
+.problem-card:hover,
+.testi-card:hover {
+  border-color: rgba(37,99,235,0.35);
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.18), 0 12px 36px rgba(37,99,235,0.1);
+  transform: translateY(-4px);
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.3), 0 12px 36px rgba(37,99,235,0.12);
+}
+.feature-icon { transition: background 0.25s, transform 0.25s; }
+.feature-card:hover .feature-icon { background: rgba(74,222,128,0.25); transform: scale(1.1); }
+
+.price-card {
+  background: linear-gradient(155deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%),
+              var(--navy2);
+}
+.price-card.featured {
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.55),
+              0 8px 40px rgba(37,99,235,0.18),
+              0 0 80px rgba(74,222,128,0.06);
+}
+
+/* ── LP-8. BUTTON ARROW ──────────────────────────────────────── */
+.btn-arrow { display: inline-block; margin-left: 6px; transition: transform 0.2s ease; }
+.btn-primary:hover .btn-arrow { transform: translateX(4px); }
+
+/* ── LP-9. SCROLL REVEAL ─────────────────────────────────────── */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+              transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.lp-reveal.lp-in { opacity: 1; transform: translateY(0); }
+.lp-reveal.d1 { transition-delay: 0.09s; }
+.lp-reveal.d2 { transition-delay: 0.18s; }
+
+/* ── LP-10. CTA SECTION GLOW ─────────────────────────────────── */
+.cta-section { position: relative; }
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 760px; height: 560px;
+  background: radial-gradient(ellipse, rgba(37,99,235,0.13) 0%, transparent 65%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+.cta-inner { position: relative; z-index: 1; }
+
+/* ── LP-11. TRUST MARQUEE (dark) ─────────────────────────────── */
+.lp-marquee {
+  overflow: hidden;
+  background: rgba(255,255,255,0.016);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 12px 0;
+}
+.lp-marquee-inner {
+  display: flex;
+  align-items: center;
+  width: max-content;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lp-marquee-inner { animation: lp-scroll 28s linear infinite; }
+  .lp-marquee:hover .lp-marquee-inner { animation-play-state: paused; }
+  @keyframes lp-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+}
+.lp-marquee-item {
+  padding: 0 28px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  white-space: nowrap;
+}
+.lp-marquee-sep {
+  color: rgba(255,255,255,0.12);
+  font-size: 10px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ── LP-12. FOOTER MULTI-COLUMN ──────────────────────────────── */
+.lp-footer-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  max-width: 960px;
+  margin: 0 auto 32px;
+  text-align: left;
+}
+.lp-footer-brand { flex: 1; }
+.lp-footer-contact { text-align: right; }
+.lp-footer-contact p { margin-left: auto; text-align: right; }
+.lp-footer-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  max-width: 960px;
+  margin: 0 auto 24px;
+}
+.lp-footer-legal { text-align: center; max-width: 960px; margin: 0 auto; }
+
+@media (max-width: 600px) {
+  .lp-footer-main { flex-direction: column; gap: 20px; }
+  .lp-footer-contact { text-align: left; }
+  .lp-footer-contact p { margin-left: 0; text-align: left; }
+}
+
+/* ── LP-13. REDUCED MOTION ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow { animation: none; }
+  .lp-reveal { opacity: 1; transform: none; transition: none; }
 }
 
 /* =============================================================
