@@ -3,6 +3,7 @@
 import React from "react";
 import { Icon } from "./icons";
 import { TweaksPanel, useTweaks, TweakSection, TweakRadio, TweakToggle, TweakColor } from "./tweaks";
+import { LOCALES } from "./locales.data";
 const { useState: useStateL, useEffect: useEffectL, useRef: useRefL } = React;
 
 // Brand mark — Pierson Digital monogram (blue P / green D) + wordmark.
@@ -364,6 +365,21 @@ function Footer() {
             </div>
           ))}
         </div>
+
+        {/* Areas we serve — internal links to every localized landing page */}
+        <div style={{ borderTop: "1px solid hsl(var(--border))", paddingTop: 24, marginTop: 8 }}>
+          <h5 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "var(--font-mono)", color: "hsl(var(--muted-foreground))", margin: "0 0 14px", fontWeight: 500 }}>
+            Areas we serve
+          </h5>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 18px" }}>
+            {LOCALES.map((l) => (
+              <a key={l.slug} href={`/${l.slug}`} style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", textDecoration: "none", whiteSpace: "nowrap" }}>
+                {l.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
         <div className="cc-footer__bottom">
           <span>© 2026 Pierson Digital. All rights reserved.</span>
           <span style={{ display: "inline-flex", gap: 18, flexWrap: "wrap" }}>
