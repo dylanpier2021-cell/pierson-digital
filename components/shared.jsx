@@ -6,42 +6,77 @@ import { TweaksPanel, useTweaks, TweakSection, TweakRadio, TweakToggle, TweakCol
 import { LOCALES } from "./locales.data";
 const { useState: useStateL, useEffect: useEffectL, useRef: useRefL } = React;
 
-// Brand mark — Pierson Digital monogram (blue P / green D) + wordmark.
-// The monogram is a transparent PNG that reads on light and dark nav alike;
-// the wordmark text inherits the theme foreground so it flips automatically.
+// Premium brand lockup — the PD monogram paired with a refined, letter-spaced
+// wordmark, a brushed-gold hairline divider, and a small gold agency tagline.
+// Restraint + metallic gold = luxury. Wordmark inherits the theme foreground so
+// it flips light/dark; the gold accents read on both.
+const GOLD_GRADIENT = "linear-gradient(135deg,#F6ECC9 0%,#DcC076 34%,#A9852F 64%,#EFDFA8 100%)";
+const GOLD_TEXT = {
+  color: "#C9A94E",
+  backgroundImage: GOLD_GRADIENT,
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+};
+
 function BrandLogo({ compact }) {
   if (compact) {
     return (
       <img
         src="/assets/logo-pd.png"
         alt="Pierson Digital logo"
-        width="34"
-        height="34"
+        width="36"
+        height="36"
         className="cc-brand__icon"
-        style={{ width: 34, height: 34, objectFit: "contain" }}
+        style={{ width: 36, height: 36, objectFit: "contain" }}
       />
     );
   }
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 13 }}>
       <img
         src="/assets/logo-pd.png"
         alt="Pierson Digital logo"
-        width="34"
-        height="34"
-        style={{ width: 34, height: 34, objectFit: "contain" }}
+        width="38"
+        height="38"
+        style={{ width: 38, height: 38, objectFit: "contain" }}
       />
+      {/* brushed-gold hairline divider */}
       <span
+        aria-hidden="true"
         style={{
-          fontFamily: "var(--font-display)",
-          fontWeight: 800,
-          fontSize: 23,
-          letterSpacing: "0.005em",
-          lineHeight: 1,
-          whiteSpace: "nowrap",
+          width: 1,
+          height: 32,
+          background: "linear-gradient(180deg, transparent, rgba(201,169,78,0.85) 22%, rgba(201,169,78,0.85) 78%, transparent)",
         }}
-      >
-        Pierson <span style={{ color: "hsl(var(--accent))" }}>Digital</span>
+      />
+      <span style={{ display: "flex", flexDirection: "column", gap: 4, lineHeight: 1 }}>
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
+            fontSize: 21,
+            letterSpacing: "0.17em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Pierson Digital
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 8,
+            fontWeight: 600,
+            letterSpacing: "0.44em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            paddingLeft: "0.12em",
+            ...GOLD_TEXT,
+          }}
+        >
+          Marketing · Web · Growth
+        </span>
       </span>
     </span>
   );
