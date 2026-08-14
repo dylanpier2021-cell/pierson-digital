@@ -25,13 +25,9 @@ const FORM_WEBHOOK_URL = "";
 // The guarantee remedy line — one place to change the wording everywhere.
 const GUARANTEE_REMEDY = "If we don't hit it, we work for free until we do.";
 
-// Testimonials — filmed vertically (9:16). Add videoUrl/posterUrl when a video
-// is ready; a slot with no videoUrl renders a clean "coming soon" tile.
-const TESTIMONIALS = [
-  { videoUrl: "", posterUrl: "", quote: "#1 on Google Maps in a week", name: "Roofing Company Owner" },
-  { videoUrl: "", posterUrl: "", quote: "Every lead straight to my phone", name: "Roofing Company Owner" },
-  { videoUrl: "", posterUrl: "", quote: "Even ChatGPT recommends us now", name: "Roofing Company Owner" },
-];
+// The social-proof stat shown where testimonials used to be.
+const PROOF_STAT = "10,000+";
+const PROOF_LINE = "people have run through our system.";
 
 /* ═══════════════════════════════ END CONFIG ═══════════════════════════════ */
 
@@ -87,12 +83,6 @@ const QUESTIONS = [
 ];
 
 const TOTAL_STEPS = QUESTIONS.length + 1; // 7 choice questions + contact step
-
-// Smooth-scroll helper — every CTA on the page points at the form card.
-function scrollToForm() {
-  const el = document.getElementById("apply");
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
 
 /* ── Hero video: autoplay muted, visible unmute toggle ─────────────────── */
 function HeroVideo() {
@@ -167,58 +157,6 @@ function ExplainerVideo() {
         </button>
       )}
     </div>
-  );
-}
-
-/* ── Testimonial slot: 9:16 video if provided, clean placeholder if not ── */
-function TestimonialSlot({ videoUrl, posterUrl, quote, name }) {
-  const videoRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-
-  const start = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.play().catch(() => {});
-    setPlaying(true);
-  };
-
-  return (
-    <figure className="rf-testimonial">
-      {videoUrl ? (
-        <div className="rf-testimonial-video">
-          <video
-            ref={videoRef}
-            src={videoUrl}
-            poster={posterUrl || undefined}
-            preload="none"
-            playsInline
-            controls={playing}
-            onEnded={() => setPlaying(false)}
-            aria-label={`Testimonial from ${name}`}
-          />
-          {!playing && (
-            <button type="button" className="rf-play-overlay" onClick={start} aria-label={`Play testimonial: ${quote}`}>
-              <span className="rf-play-circle rf-play-circle--sm">
-                <PlayIcon />
-              </span>
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="rf-testimonial-placeholder" aria-label={`Testimonial: ${quote} — video coming soon`}>
-          <span className="rf-testimonial-mark" aria-hidden="true">
-            &ldquo;
-          </span>
-          <span className="rf-testimonial-placeholder-quote">{quote}</span>
-          <span className="rf-testimonial-soon">Video coming soon</span>
-        </div>
-      )}
-      <figcaption>
-        {/* placeholder tiles already show the quote — don't repeat it */}
-        {videoUrl && <div className="rf-testimonial-quote">&ldquo;{quote}&rdquo;</div>}
-        <div className="rf-testimonial-name">{name}</div>
-      </figcaption>
-    </figure>
   );
 }
 
@@ -365,7 +303,7 @@ function ApplicationForm() {
   /* ── Calendar state: the form card is replaced in place ── */
   if (showCalendar) {
     return (
-      <div ref={cardRef} className="rf-form-card rf-form-card--calendar" id="apply">
+      <div ref={cardRef} className="rf-form-card rf-form-card--calendar">
         <h2 className="rf-form-headline" ref={headingRef} tabIndex={-1}>
           You&rsquo;re Qualified. Lock In Your Call.
         </h2>
@@ -379,7 +317,7 @@ function ApplicationForm() {
   }
 
   return (
-    <div ref={cardRef} className="rf-form-card" id="apply">
+    <div ref={cardRef} className="rf-form-card">
       {/* Progress */}
       <div className="rf-progress-label">
         Question {stepNumber} of {TOTAL_STEPS} · {percent}%
@@ -481,6 +419,46 @@ function ApplicationForm() {
   );
 }
 
+/* ── The application popup. The form stays mounted while closed, so a
+      roofer who closes it and comes back hasn't lost their answers. ────── */
+function ApplicationModal({ open, onClose }) {
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden"; // lock page scroll behind the popup
+    if (cardRef.current) cardRef.current.focus({ preventScroll: true });
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  return (
+    <div
+      className={`rf-modal ${open ? "rf-modal--open" : ""}`}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Get your roofing plan"
+      aria-hidden={open ? undefined : "true"}
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose(); // click the dark backdrop to close
+      }}
+    >
+      <div className="rf-modal-card" ref={cardRef} tabIndex={-1}>
+        <button type="button" className="rf-modal-close" onClick={onClose} aria-label="Close the form">
+          ×
+        </button>
+        <ApplicationForm />
+      </div>
+    </div>
+  );
+}
+
 /* ── Small inline icons ─────────────────────────────────────────────────── */
 function PlayIcon() {
   return (
@@ -530,6 +508,9 @@ const PILLARS = [
 
 /* ═══════════════════════════════ THE PAGE ═════════════════════════════════ */
 export default function Roofers() {
+  const [formOpen, setFormOpen] = useState(false);
+  const openForm = () => setFormOpen(true);
+
   return (
     <div className="rf-page" data-theme="dark">
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
@@ -537,7 +518,7 @@ export default function Roofers() {
       {/* ── Top bar: logo + one CTA. No nav. ── */}
       <header className="rf-topbar">
         <img src="/assets/logo-pd.png" alt="Pierson Digital" className="rf-logo" width="40" height="40" />
-        <button type="button" className="rf-cta rf-cta--small" onClick={scrollToForm}>
+        <button type="button" className="rf-cta rf-cta--small" onClick={openForm}>
           Get My Roofing Plan
         </button>
       </header>
@@ -552,7 +533,7 @@ export default function Roofers() {
           <strong>5 booked appointments in your first 30 days</strong>.
         </p>
         <HeroVideo />
-        <button type="button" className="rf-cta rf-cta--big" onClick={scrollToForm}>
+        <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
           Get My Roofing Plan →
         </button>
       </section>
@@ -569,14 +550,10 @@ export default function Roofers() {
         </div>
       </section>
 
-      {/* ── 3. Testimonials ── */}
-      <section className="rf-section">
-        <h2 className="rf-h2">Real Roofers. Real Results.</h2>
-        <div className="rf-testimonials">
-          {TESTIMONIALS.map((t) => (
-            <TestimonialSlot key={t.quote} {...t} />
-          ))}
-        </div>
+      {/* ── 3. Social proof ── */}
+      <section className="rf-section rf-section--tight rf-section--center">
+        <div className="rf-stat-number">{PROOF_STAT}</div>
+        <p className="rf-stat-line">{PROOF_LINE}</p>
       </section>
 
       {/* ── 4. What You Get ── */}
@@ -598,7 +575,7 @@ export default function Roofers() {
         <div className="rf-explainer">
           <ExplainerVideo />
         </div>
-        <button type="button" className="rf-cta rf-cta--big" onClick={scrollToForm}>
+        <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
           Get My Roofing Plan →
         </button>
       </section>
@@ -610,12 +587,17 @@ export default function Roofers() {
         If that&rsquo;s not you, keep scrolling.
       </section>
 
-      {/* ── 7 & 8. Application form → calendar ── */}
-      <section className="rf-section rf-section--form">
+      {/* ── 7. Final CTA — the form itself lives in the popup ── */}
+      <section className="rf-section rf-section--center">
         <h2 className="rf-h2">See If You Qualify</h2>
-        <p className="rf-form-intro">Takes about 60 seconds. No spam, no obligation.</p>
-        <ApplicationForm />
+        <p className="rf-form-intro">8 quick questions. Takes about 60 seconds. No spam, no obligation.</p>
+        <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
+          Get My Roofing Plan →
+        </button>
       </section>
+
+      {/* ── 8. The application popup (form → calendar) ── */}
+      <ApplicationModal open={formOpen} onClose={() => setFormOpen(false)} />
 
       {/* ── Minimal footer: no links, page has one job ── */}
       <footer className="rf-footer">© {new Date().getFullYear()} Pierson Digital · Marketing for roofing companies</footer>
@@ -797,60 +779,21 @@ const STYLES = `
 .rf-section--tight { padding-top: 40px; padding-bottom: 40px; }
 .rf-section--center { text-align: center; }
 
-/* ── testimonials ── */
-.rf-testimonials {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
-  max-width: 860px;
-  margin: 0 auto;
-}
-.rf-testimonial { margin: 0; }
-.rf-testimonial-video,
-.rf-testimonial-placeholder {
-  position: relative;
-  aspect-ratio: 9 / 16;
-  border-radius: 16px;
-  overflow: hidden;
-  background: hsl(0 0% 9%);
-  border: 1px solid hsl(0 0% 18%);
-}
-.rf-testimonial-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.rf-testimonial-placeholder {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-  padding: 24px 18px;
-  background: linear-gradient(160deg, hsl(0 0% 12%), hsl(0 0% 7%) 70%);
-}
-.rf-testimonial-mark {
+/* ── social-proof stat ── */
+.rf-stat-number {
   font-family: var(--font-display);
-  font-size: 64px;
   font-weight: 900;
-  line-height: 0.6;
-  color: hsl(var(--rf-accent));
+  font-size: clamp(72px, 18vw, 140px);
+  line-height: 0.95;
+  color: hsl(var(--rf-accent-strong));
+  letter-spacing: -0.01em;
 }
-.rf-testimonial-placeholder-quote {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 21px;
-  line-height: 1.15;
-  text-transform: uppercase;
+.rf-stat-line {
+  font-size: clamp(18px, 4.6vw, 24px);
+  font-weight: 600;
+  color: hsl(0 0% 88%);
+  margin: 10px 0 0;
 }
-.rf-testimonial-soon {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: hsl(0 0% 52%);
-  margin-top: 6px;
-}
-.rf-testimonial figcaption { margin-top: 12px; text-align: center; }
-.rf-testimonial-quote { font-weight: 600; font-size: 15px; line-height: 1.3; }
-.rf-testimonial-name { margin-top: 3px; font-size: 13px; color: hsl(0 0% 60%); }
 
 /* ── pillars ── */
 .rf-pillars {
@@ -893,16 +836,75 @@ const STYLES = `
 }
 .rf-whofor strong { color: hsl(0 0% 92%); }
 
-/* ── the form card ── */
-.rf-section--form { max-width: 640px; scroll-margin-top: 12px; }
+/* ── the popup ── */
+.rf-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+.rf-modal--open { display: flex; }
+.rf-modal-card {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: min(760px, 100%);
+  overflow-y: auto;
+  background: hsl(0 0% 9%);
+  border: 1px solid hsl(0 0% 22%);
+  border-radius: 20px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+  animation: rf-modal-in var(--duration-normal) var(--ease-default);
+}
+.rf-modal-card:focus { outline: none; }
+@keyframes rf-modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rf-modal-card { animation: none; }
+}
+.rf-modal-close {
+  position: sticky;
+  top: 10px;
+  float: right;
+  margin: 10px 12px 0 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid hsl(0 0% 30%);
+  background: hsl(0 0% 14%);
+  color: hsl(0 0% 85%);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 5;
+}
+.rf-modal-close:hover { background: hsl(0 0% 20%); color: #fff; }
+.rf-modal-close:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 2px; }
+/* fullscreen popup on phones — fill the screen, no wasted edges */
+@media (max-width: 720px) {
+  .rf-modal { padding: 0; }
+  .rf-modal-card {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+/* ── the form card (lives inside the popup) ── */
 .rf-form-intro { text-align: center; margin: -10px 0 26px; color: hsl(0 0% 62%); font-size: 15px; }
 .rf-form-card {
-  background: hsl(0 0% 9%);
-  border: 1px solid hsl(0 0% 20%);
-  border-radius: 20px;
   padding: 26px 24px 22px;
-  box-shadow: 0 24px 60px -20px rgba(0,0,0,0.7);
-  scroll-margin-top: 16px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .rf-progress-label {
   font-family: var(--font-mono);
@@ -926,8 +928,21 @@ const STYLES = `
   transition: width var(--duration-slow) var(--ease-default);
 }
 
-/* one-question-per-screen step area; min-height keeps the card stable */
-.rf-step { min-height: 380px; }
+/* one-question-per-screen step area; flex fill + min-height keep the popup
+   height stable between steps, and centering fills the card on tall phones */
+.rf-step {
+  flex: 1;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.rf-step > form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .rf-step--in { animation: rf-step-in var(--duration-normal) var(--ease-default); }
 @keyframes rf-step-in {
   from { opacity: 0; transform: translateX(18px); }
@@ -1057,10 +1072,6 @@ const STYLES = `
 
 /* ── mobile ── */
 @media (max-width: 720px) {
-  .rf-testimonials { grid-template-columns: 1fr; max-width: 320px; }
-  /* placeholder tiles shrink on mobile so three stacked slots don't become a
-     scroll wall before the form; real 9:16 videos keep their full aspect */
-  .rf-testimonial-placeholder { aspect-ratio: auto; min-height: 210px; }
   .rf-pillars { grid-template-columns: 1fr; }
   .rf-section { padding-top: 48px; padding-bottom: 48px; }
   .rf-form-card { padding: 22px 16px 18px; }
