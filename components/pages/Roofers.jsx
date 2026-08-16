@@ -15,74 +15,21 @@ const HERO_VIDEO_POSTER = ""; // optional poster image; "" = browser uses first 
 const EXPLAINER_VIDEO_URL = "/assets/roofers/explainer.mp4";
 const EXPLAINER_VIDEO_POSTER = ""; // optional poster image
 
-// GoHighLevel calendar embed (booking widget URL).
+// GoHighLevel calendar embed (booking widget URL). Every CTA opens this
+// straight in a popup — no opt-in form in between.
 const CALENDAR_EMBED_URL = "https://api.leadconnectorhq.com/widget/booking/WD29jXNzNI40oG2KgKFG";
-
-// GoHighLevel inbound webhook — the full application payload POSTs here.
-// "" = skip the POST (calendar still shows, so you can test before wiring GHL).
-const FORM_WEBHOOK_URL = "";
 
 // The guarantee remedy line — one place to change the wording everywhere.
 const GUARANTEE_REMEDY = "If we don't hit it, we work for free until we do.";
+
+// The one qualification requirement, shown on the page and in the popup.
+const QUALIFIER = "For roofing companies doing $30k+/month.";
 
 // The social-proof stat shown where testimonials used to be.
 const PROOF_STAT = "10,000+";
 const PROOF_LINE = "people have run through our system.";
 
 /* ═══════════════════════════════ END CONFIG ═══════════════════════════════ */
-
-// The 7 multiple-choice questions (Q8 is the contact step, rendered separately).
-const QUESTIONS = [
-  {
-    id: "workType",
-    question: "What kind of roofing work do you do?",
-    options: ["Residential", "Commercial", "Both residential and commercial", "Storm & insurance restoration"],
-  },
-  {
-    id: "monthlyRevenue",
-    question: "What's your current monthly revenue?",
-    options: ["Under $30k", "$30k – $50k", "$50k – $100k", "$100k+"],
-  },
-  {
-    id: "yearsInBusiness",
-    question: "How long have you been in business?",
-    options: ["Under 2 years", "2 – 5 years", "5 – 10 years", "10+ years"],
-  },
-  {
-    id: "licensedInsured",
-    question: "Are you licensed and insured?",
-    options: ["Yes, both", "Licensed, not insured", "Neither yet"],
-  },
-  {
-    id: "leadSource",
-    question: "Where do most of your jobs come from right now?",
-    options: [
-      "Word of mouth and referrals",
-      "Shared lead services (Angi, HomeAdvisor, etc.)",
-      "Google / our website",
-      "Door knocking and canvassing",
-      "Honestly, it's not consistent",
-    ],
-  },
-  {
-    id: "biggestProblem",
-    question: "What's costing you the most money right now?",
-    options: [
-      "Not enough leads coming in",
-      "The leads I get are junk",
-      "Leads slip through the cracks — we're disorganized",
-      "A competitor outranks me on Google",
-      "My website makes us look small",
-    ],
-  },
-  {
-    id: "readyToInvest",
-    question: "This runs $3,500/month plus a minimum $50/day ad budget. Are you ready to invest that to grow?",
-    options: ["Yes — ready to start now", "Yes — if it's the right fit", "Not right now"],
-  },
-];
-
-const TOTAL_STEPS = QUESTIONS.length + 1; // 7 choice questions + contact step
 
 /* ── Hero video: autoplay muted, visible unmute toggle ─────────────────── */
 function HeroVideo() {
@@ -185,243 +132,9 @@ function CalendarEmbed() {
   );
 }
 
-/* ── Phone auto-format: digits in → (217) 555-0134 out ─────────────────── */
-function formatPhone(raw) {
-  const d = raw.replace(/\D/g, "").slice(0, 10);
-  if (d.length === 0) return "";
-  if (d.length < 4) return `(${d}`;
-  if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
-}
-
-/* ── The application form: one question per screen, then contact, then
-      the calendar replaces the card in place ──────────────────────────── */
-function ApplicationForm() {
-  const [step, setStep] = useState(0); // 0..6 = choice questions, 7 = contact
-  const [answers, setAnswers] = useState({});
-  const [contact, setContact] = useState({ fullName: "", companyName: "", phone: "", email: "", city: "" });
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const headingRef = useRef(null);
-  const cardRef = useRef(null);
-  const advanceTimer = useRef(null);
-
-  useEffect(() => () => clearTimeout(advanceTimer.current), []);
-
-  // Move focus to the question heading on step change so keyboard and
-  // screen-reader users land in the right place. preventScroll keeps the
-  // card fixed in the viewport — the page must not jump on mobile.
-  useEffect(() => {
-    if (headingRef.current) headingRef.current.focus({ preventScroll: true });
-  }, [step]);
-
-  // Choice questions: clicking an answer selects it, shows the selection for
-  // a beat, then auto-advances. Functional updates — no stale-closure races.
-  const choose = (questionId, option) => {
-    setAnswers((a) => ({ ...a, [questionId]: option }));
-    clearTimeout(advanceTimer.current);
-    advanceTimer.current = setTimeout(() => setStep((s) => s + 1), 250);
-  };
-
-  const back = () => {
-    clearTimeout(advanceTimer.current);
-    setStep((s) => Math.max(0, s - 1));
-  };
-
-  const setField = (field) => (e) => {
-    const value = field === "phone" ? formatPhone(e.target.value) : e.target.value;
-    setContact((c) => ({ ...c, [field]: value }));
-    setErrors((err) => ({ ...err, [field]: undefined }));
-  };
-
-  const validate = () => {
-    const err = {};
-    if (!contact.fullName.trim()) err.fullName = "We need your name.";
-    if (!contact.companyName.trim()) err.companyName = "What's your company called?";
-    if (contact.phone.replace(/\D/g, "").length !== 10) err.phone = "Enter a 10-digit phone number.";
-    if (!/^\S+@\S+\.\S+$/.test(contact.email.trim())) err.email = "That email doesn't look right.";
-    if (!contact.city.trim()) err.city = "Tell us the city or area you work in.";
-    setErrors(err);
-    return Object.keys(err).length === 0;
-  };
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!validate() || submitting) return;
-    setSubmitting(true);
-
-    // Fire the webhook first — but never let a GHL hiccup cost a booking.
-    // 6-second cap, all failures swallowed; the calendar shows regardless.
-    if (FORM_WEBHOOK_URL) {
-      const payload = {
-        ...answers,
-        fullName: contact.fullName.trim(),
-        companyName: contact.companyName.trim(),
-        phone: contact.phone,
-        email: contact.email.trim(),
-        city: contact.city.trim(),
-        page: "/roofers",
-        submittedAt: new Date().toISOString(),
-      };
-      try {
-        await Promise.race([
-          fetch(FORM_WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error("webhook timeout")), 6000)),
-        ]);
-      } catch {
-        /* calendar still shows — do not block the booking */
-      }
-    }
-
-    // Meta Pixel is loaded globally in layout.jsx — count the application.
-    try {
-      if (typeof window.fbq === "function") window.fbq("track", "Lead");
-    } catch {
-      /* pixel blocked — ignore */
-    }
-
-    setSubmitting(false);
-    setShowCalendar(true);
-  };
-
-  // Scroll the calendar into view when it replaces the form card.
-  useEffect(() => {
-    if (showCalendar && cardRef.current) {
-      cardRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [showCalendar]);
-
-  const stepNumber = step + 1;
-  const percent = Math.floor((stepNumber / TOTAL_STEPS) * 100);
-  const currentQuestion = step < QUESTIONS.length ? QUESTIONS[step] : null;
-
-  /* ── Calendar state: the form card is replaced in place ── */
-  if (showCalendar) {
-    return (
-      <div ref={cardRef} className="rf-form-card rf-form-card--calendar">
-        <h2 className="rf-form-headline" ref={headingRef} tabIndex={-1}>
-          You&rsquo;re Qualified. Lock In Your Call.
-        </h2>
-        <p className="rf-form-subline">
-          Pick a time below. It&rsquo;s a 15-minute call — we&rsquo;ll show you exactly what your #1 spot on Google
-          Maps is worth.
-        </p>
-        <CalendarEmbed />
-      </div>
-    );
-  }
-
-  return (
-    <div ref={cardRef} className="rf-form-card">
-      {/* Progress */}
-      <div className="rf-progress-label">
-        Question {stepNumber} of {TOTAL_STEPS} · {percent}%
-      </div>
-      <div
-        className="rf-progress-track"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={percent}
-        aria-label={`Application progress: question ${stepNumber} of ${TOTAL_STEPS}`}
-      >
-        <div className="rf-progress-fill" style={{ width: `${percent}%` }} />
-      </div>
-
-      {/* One question per screen. Fixed min-height keeps the card from
-          resizing between steps so the viewport never jumps on mobile.
-          key={step} re-runs the slide-in animation on every step change. */}
-      <div key={step} className="rf-step rf-step--in">
-        {currentQuestion ? (
-          <>
-            <h3 className="rf-question" ref={headingRef} tabIndex={-1}>
-              {currentQuestion.question}
-            </h3>
-            <div className="rf-options" role="group" aria-label={currentQuestion.question}>
-              {currentQuestion.options.map((option) => {
-                const selected = answers[currentQuestion.id] === option;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    className={`rf-option ${selected ? "rf-option--selected" : ""}`}
-                    onClick={() => choose(currentQuestion.id, option)}
-                    aria-pressed={selected}
-                  >
-                    <span className="rf-option-dot" aria-hidden="true" />
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          /* Q8 — contact details, the only step with text inputs */
-          <form onSubmit={submit} noValidate>
-            <h3 className="rf-question" ref={headingRef} tabIndex={-1}>
-              Last step — where do we send your plan?
-            </h3>
-            <div className="rf-fields">
-              {[
-                { field: "fullName", label: "Full Name", type: "text", autoComplete: "name" },
-                { field: "companyName", label: "Company Name", type: "text", autoComplete: "organization" },
-                { field: "phone", label: "Phone", type: "tel", autoComplete: "tel", inputMode: "tel" },
-                { field: "email", label: "Email", type: "email", autoComplete: "email", inputMode: "email" },
-                { field: "city", label: "City / Service Area", type: "text", autoComplete: "address-level2" },
-              ].map(({ field, label, type, autoComplete, inputMode }) => (
-                <div key={field} className="rf-field">
-                  <label htmlFor={`rf-${field}`}>{label}</label>
-                  <input
-                    id={`rf-${field}`}
-                    type={type}
-                    inputMode={inputMode}
-                    autoComplete={autoComplete}
-                    value={contact[field]}
-                    onChange={setField(field)}
-                    required
-                    aria-invalid={errors[field] ? "true" : undefined}
-                    aria-describedby={errors[field] ? `rf-${field}-error` : undefined}
-                    className={errors[field] ? "rf-input--error" : ""}
-                  />
-                  {errors[field] && (
-                    <div className="rf-field-error" id={`rf-${field}-error`} role="alert">
-                      {errors[field]}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <button type="submit" className="rf-cta rf-cta--submit" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <span className="rf-spinner" aria-hidden="true" /> Sending…
-                </>
-              ) : (
-                <>See My Availability →</>
-              )}
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* Back link on every step except the first. Answers are kept. */}
-      {step > 0 && (
-        <button type="button" className="rf-back" onClick={back}>
-          ← Back
-        </button>
-      )}
-    </div>
-  );
-}
-
-/* ── The application popup. The form stays mounted while closed, so a
-      roofer who closes it and comes back hasn't lost their answers. ────── */
-function ApplicationModal({ open, onClose }) {
+/* ── The booking popup: straight to the calendar, no opt-in. It stays
+      mounted while closed so the calendar is already loaded on open. ───── */
+function BookingModal({ open, onClose }) {
   const cardRef = useRef(null);
 
   useEffect(() => {
@@ -443,17 +156,24 @@ function ApplicationModal({ open, onClose }) {
       className={`rf-modal ${open ? "rf-modal--open" : ""}`}
       role="dialog"
       aria-modal="true"
-      aria-label="Get your roofing plan"
+      aria-label="Book your call"
       aria-hidden={open ? undefined : "true"}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose(); // click the dark backdrop to close
       }}
     >
       <div className="rf-modal-card" ref={cardRef} tabIndex={-1}>
-        <button type="button" className="rf-modal-close" onClick={onClose} aria-label="Close the form">
+        <button type="button" className="rf-modal-close" onClick={onClose} aria-label="Close">
           ×
         </button>
-        <ApplicationForm />
+        <div className="rf-form-card rf-form-card--calendar">
+          <h2 className="rf-form-headline">Lock In Your Call.</h2>
+          <p className="rf-form-subline">
+            Pick a time below. It&rsquo;s a 15-minute call — we&rsquo;ll show you exactly what your #1 spot on Google
+            Maps is worth. {QUALIFIER}
+          </p>
+          <CalendarEmbed />
+        </div>
       </div>
     </div>
   );
@@ -530,7 +250,7 @@ export default function Roofers() {
         </h1>
         <p className="rf-sub">
           We put roofing companies at <strong>#1 on Google Maps</strong> — and guarantee you{" "}
-          <strong>5 booked appointments in your first 30 days</strong>.
+          <strong>5 booked calls in your first 30 days</strong>.
         </p>
         <HeroVideo />
         <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
@@ -542,7 +262,7 @@ export default function Roofers() {
       <section className="rf-guarantee" aria-label="Our guarantee">
         <div className="rf-guarantee-inner">
           <div className="rf-guarantee-headline">
-            5 booked appointments in your first 30 days — <span className="rf-guarantee-mark">guaranteed.</span>
+            5 booked calls in your first 30 days — <span className="rf-guarantee-mark">guaranteed.</span>
           </div>
           <div className="rf-guarantee-terms">
             Requires a minimum $50/day Local Services Ads budget. <strong>{GUARANTEE_REMEDY}</strong>
@@ -582,22 +302,21 @@ export default function Roofers() {
 
       {/* ── 6. Who This Is For ── */}
       <section className="rf-whofor">
-        This is for roofing companies that are <strong>licensed &amp; insured</strong>, doing{" "}
-        <strong>$30k+/month</strong>, <strong>2+ years in business</strong>, with <strong>real customer reviews</strong>.
-        If that&rsquo;s not you, keep scrolling.
+        This is for roofing companies doing <strong>$30k+/month</strong>. If that&rsquo;s not you yet, keep
+        scrolling.
       </section>
 
-      {/* ── 7. Final CTA — the form itself lives in the popup ── */}
+      {/* ── 7. Final CTA — the calendar lives in the popup ── */}
       <section className="rf-section rf-section--center">
-        <h2 className="rf-h2">See If You Qualify</h2>
-        <p className="rf-form-intro">8 quick questions. Takes about 60 seconds. No spam, no obligation.</p>
+        <h2 className="rf-h2">Lock In Your Call</h2>
+        <p className="rf-form-intro">15 minutes. No pressure, no obligation. {QUALIFIER}</p>
         <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
           Get My Roofing Plan →
         </button>
       </section>
 
-      {/* ── 8. The application popup (form → calendar) ── */}
-      <ApplicationModal open={formOpen} onClose={() => setFormOpen(false)} />
+      {/* ── 8. The booking popup ── */}
+      <BookingModal open={formOpen} onClose={() => setFormOpen(false)} />
 
       {/* ── Minimal footer: no links, page has one job ── */}
       <footer className="rf-footer">© {new Date().getFullYear()} Pierson Digital · Marketing for roofing companies</footer>
@@ -692,7 +411,6 @@ const STYLES = `
 .rf-cta:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 3px; }
 .rf-cta--small { font-size: 14px; padding: 10px 16px; }
 .rf-cta--big { font-size: 19px; padding: 18px 34px; margin-top: 26px; }
-.rf-cta--submit { width: 100%; font-size: 18px; padding: 17px 24px; margin-top: 22px; }
 .rf-cta:disabled { opacity: 0.7; cursor: default; transform: none; }
 
 /* ── video frames ── */
@@ -906,143 +624,6 @@ const STYLES = `
   display: flex;
   flex-direction: column;
 }
-.rf-progress-label {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: hsl(0 0% 60%);
-  margin-bottom: 8px;
-}
-.rf-progress-track {
-  height: 8px;
-  border-radius: 999px;
-  background: hsl(0 0% 17%);
-  overflow: hidden;
-  margin-bottom: 26px;
-}
-.rf-progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: hsl(var(--rf-accent));
-  transition: width var(--duration-slow) var(--ease-default);
-}
-
-/* one-question-per-screen step area; flex fill + min-height keep the popup
-   height stable between steps, and centering fills the card on tall phones */
-.rf-step {
-  flex: 1;
-  min-height: 380px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.rf-step > form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.rf-step--in { animation: rf-step-in var(--duration-normal) var(--ease-default); }
-@keyframes rf-step-in {
-  from { opacity: 0; transform: translateX(18px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rf-step--in { animation: none; }
-}
-
-.rf-question {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(22px, 5.4vw, 30px);
-  line-height: 1.1;
-  margin: 0 0 20px;
-}
-.rf-question:focus { outline: none; }
-.rf-options { display: flex; flex-direction: column; gap: 10px; }
-.rf-option {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  width: 100%;
-  text-align: left;
-  font-size: 16.5px;
-  font-weight: 600;
-  color: hsl(0 0% 96%);
-  background: hsl(0 0% 13%);
-  border: 2px solid hsl(0 0% 22%);
-  border-radius: 13px;
-  padding: 15px 16px;
-  transition: border-color var(--duration-fast) var(--ease-default), background-color var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-default);
-}
-.rf-option:hover { border-color: hsl(var(--rf-accent)); background: hsl(0 0% 16%); }
-.rf-option:active { transform: scale(0.99); }
-.rf-option:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 2px; }
-.rf-option--selected {
-  border-color: hsl(var(--rf-accent));
-  background: hsl(var(--rf-accent) / 0.16);
-}
-.rf-option-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid hsl(0 0% 40%);
-  flex-shrink: 0;
-  transition: all var(--duration-fast) var(--ease-default);
-}
-.rf-option--selected .rf-option-dot {
-  border-color: hsl(var(--rf-accent));
-  background: hsl(var(--rf-accent));
-  box-shadow: inset 0 0 0 3px hsl(0 0% 9%);
-}
-
-.rf-back {
-  margin-top: 18px;
-  background: none;
-  border: none;
-  color: hsl(0 0% 60%);
-  font-size: 14.5px;
-  font-weight: 600;
-  padding: 6px 2px;
-}
-.rf-back:hover { color: hsl(0 0% 90%); }
-.rf-back:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 2px; border-radius: 6px; }
-
-/* ── contact fields ── */
-.rf-fields { display: flex; flex-direction: column; gap: 14px; }
-.rf-field label {
-  display: block;
-  font-size: 13.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  margin-bottom: 6px;
-  color: hsl(0 0% 78%);
-}
-.rf-field input {
-  width: 100%;
-  font-size: 16px; /* ≥16px prevents iOS zoom-on-focus */
-  padding: 13px 14px;
-  border-radius: 11px;
-  background: hsl(0 0% 13%);
-  border: 2px solid hsl(0 0% 24%);
-  color: hsl(0 0% 98%);
-  transition: border-color var(--duration-fast) var(--ease-default);
-}
-.rf-field input:focus { outline: none; border-color: hsl(var(--rf-accent)); }
-.rf-field input.rf-input--error { border-color: hsl(0 72% 55%); }
-.rf-field-error { margin-top: 5px; font-size: 13.5px; font-weight: 500; color: hsl(0 82% 68%); }
-
-.rf-spinner {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid hsl(0 0% 4% / 0.3);
-  border-top-color: hsl(0 0% 4%);
-  animation: rf-spin 0.7s linear infinite;
-}
-@keyframes rf-spin { to { transform: rotate(360deg); } }
-
 /* ── calendar state ── */
 .rf-form-card--calendar { padding: 26px 16px 16px; }
 .rf-form-headline {
@@ -1075,6 +656,5 @@ const STYLES = `
   .rf-pillars { grid-template-columns: 1fr; }
   .rf-section { padding-top: 48px; padding-bottom: 48px; }
   .rf-form-card { padding: 22px 16px 18px; }
-  .rf-step { min-height: 420px; }
 }
 `;
