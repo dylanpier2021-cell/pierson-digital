@@ -8,12 +8,10 @@ const { useState, useEffect, useRef } = React;
    ██  CONFIG — edit this block to launch. Nothing below it needs touching.  ██
    ═══════════════════════════════════════════════════════════════════════════ */
 
-// Two 15-second 16:9 videos (already in /public/assets/roofers/).
-// Swap the files or point these at new URLs to change them.
+// The 15-second 16:9 hero video (already in /public/assets/roofers/).
+// Swap the file or point this at a new URL to change it.
 const HERO_VIDEO_URL = "/assets/roofers/hero.mp4";
 const HERO_VIDEO_POSTER = ""; // optional poster image; "" = browser uses first frame
-const EXPLAINER_VIDEO_URL = "/assets/roofers/explainer.mp4";
-const EXPLAINER_VIDEO_POSTER = ""; // optional poster image
 
 // GoHighLevel calendar embed (booking widget URL). Every CTA opens this
 // straight in a popup — no opt-in form in between.
@@ -68,41 +66,6 @@ function HeroVideo() {
           </>
         )}
       </button>
-    </div>
-  );
-}
-
-/* ── Explainer video: click-to-play (one autoplaying video is enough) ───── */
-function ExplainerVideo() {
-  const videoRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-
-  const start = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.play().catch(() => {});
-    setPlaying(true);
-  };
-
-  return (
-    <div className="rf-video-frame">
-      <video
-        ref={videoRef}
-        src={EXPLAINER_VIDEO_URL}
-        poster={EXPLAINER_VIDEO_POSTER || undefined}
-        preload="metadata"
-        playsInline
-        controls={playing}
-        onEnded={() => setPlaying(false)}
-        aria-label="How the roofing growth system works"
-      />
-      {!playing && (
-        <button type="button" className="rf-play-overlay" onClick={start} aria-label="Play video">
-          <span className="rf-play-circle">
-            <PlayIcon />
-          </span>
-        </button>
-      )}
     </div>
   );
 }
@@ -180,13 +143,6 @@ function BookingModal({ open, onClose }) {
 }
 
 /* ── Small inline icons ─────────────────────────────────────────────────── */
-function PlayIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M8 5.14v13.72c0 .8.87 1.3 1.56.88l10.54-6.86a1.04 1.04 0 0 0 0-1.76L9.56 4.26A1.04 1.04 0 0 0 8 5.14Z" />
-    </svg>
-  );
-}
 function SoundOffIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -289,18 +245,7 @@ export default function Roofers() {
         </div>
       </section>
 
-      {/* ── 5. Explainer video ── */}
-      <section className="rf-section rf-section--tight rf-section--center">
-        <h2 className="rf-h2">Here&rsquo;s Exactly How It Works</h2>
-        <div className="rf-explainer">
-          <ExplainerVideo />
-        </div>
-        <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
-          Get My Roofing Plan →
-        </button>
-      </section>
-
-      {/* ── 6. Who This Is For ── */}
+      {/* ── 5. Who This Is For ── */}
       <section className="rf-whofor">
         This is for roofing companies doing <strong>$30k+/month</strong>. If that&rsquo;s not you yet, keep
         scrolling.
@@ -444,31 +389,6 @@ const STYLES = `
 }
 .rf-sound-btn:hover { background: rgba(0,0,0,0.85); }
 .rf-sound-btn:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 2px; }
-.rf-play-overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0,0,0,0.25);
-  border: none;
-  transition: background var(--duration-fast) var(--ease-default);
-}
-.rf-play-overlay:hover { background: rgba(0,0,0,0.4); }
-.rf-play-overlay:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: -3px; }
-.rf-play-circle {
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: hsl(var(--rf-accent));
-  color: hsl(0 0% 4%);
-  box-shadow: 0 10px 36px rgba(0,0,0,0.5);
-  transition: transform var(--duration-fast) var(--ease-spring);
-}
-.rf-play-overlay:hover .rf-play-circle { transform: scale(1.08); }
-.rf-play-circle--sm { width: 58px; height: 58px; }
-
 /* ── guarantee bar ── */
 .rf-guarantee {
   background: hsl(var(--rf-accent));
@@ -538,8 +458,6 @@ const STYLES = `
 }
 .rf-pillar p { margin: 0; font-size: 15px; line-height: 1.5; color: hsl(0 0% 78%); }
 
-/* ── explainer ── */
-.rf-explainer { max-width: 760px; margin: 0 auto; }
 
 /* ── who this is for ── */
 .rf-whofor {
