@@ -20,8 +20,13 @@ const CALENDAR_EMBED_URL = "https://api.leadconnectorhq.com/widget/booking/WD29j
 // The guarantee remedy line — one place to change the wording everywhere.
 const GUARANTEE_REMEDY = "If we don't hit it, we work for free until we do.";
 
+// The guarantee's condition line. Prepares them for an ad budget without a hard number.
+const GUARANTEE_TERMS =
+  "Requires a Local Services Ads budget on top of our fee — we’ll size it to your market on the call.";
+
 // The one qualification requirement, shown on the page and in the popup.
-const QUALIFIER = "For roofing companies doing $30k+/month.";
+const REVENUE_FLOOR = "$60k+/month";
+const QUALIFIER = `For roofing companies doing ${REVENUE_FLOOR}.`;
 
 // The social-proof stat shown where testimonials used to be.
 const PROOF_STAT = "10,000+";
@@ -221,7 +226,7 @@ export default function Roofers() {
             5 booked calls in your first 30 days — <span className="rf-guarantee-mark">guaranteed.</span>
           </div>
           <div className="rf-guarantee-terms">
-            Requires a minimum $50/day Local Services Ads budget. <strong>{GUARANTEE_REMEDY}</strong>
+            {GUARANTEE_TERMS} <strong>{GUARANTEE_REMEDY}</strong>
           </div>
         </div>
       </section>
@@ -247,7 +252,7 @@ export default function Roofers() {
 
       {/* ── 5. Who This Is For ── */}
       <section className="rf-whofor">
-        This is for roofing companies doing <strong>$30k+/month</strong>. If that&rsquo;s not you yet, keep
+        This is for roofing companies doing <strong>{REVENUE_FLOOR}</strong>. If that&rsquo;s not you yet, keep
         scrolling.
       </section>
 
