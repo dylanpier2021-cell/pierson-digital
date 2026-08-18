@@ -28,11 +28,12 @@ const GUARANTEE_TERMS =
 const REVENUE_FLOOR = "$60k+/month";
 const QUALIFIER = `For roofing companies doing ${REVENUE_FLOOR}.`;
 
-// The free field guide (the value piece). Linked, not gated — no opt-in.
+// The free field guide (the value piece). Direct download, not gated — no opt-in.
 // Leave GUIDE_PDF_URL empty ("") to hide the section until the PDF is uploaded.
 const GUIDE_PDF_URL = "/assets/roofers/easier-to-find-roofing-field-guide.pdf";
 const GUIDE_COVER_URL = ""; // optional cover image; "" = show a typographic cover card
 const GUIDE_PAGES = "59";
+const GUIDE_FILENAME = "Easier-To-Find-Roofing-Field-Guide.pdf"; // the filename the browser saves it as
 
 // The social-proof stat shown where testimonials used to be.
 const PROOF_STAT = "10,000+";
@@ -260,7 +261,7 @@ export default function Roofers() {
       {GUIDE_PDF_URL ? (
         <section className="rf-section rf-section--tight" aria-label="Free field guide">
           <div className="rf-guide">
-            <a className="rf-guide-cover" href={GUIDE_PDF_URL} target="_blank" rel="noopener" aria-label="Open the free field guide (PDF)">
+            <a className="rf-guide-cover" href={GUIDE_PDF_URL} download={GUIDE_FILENAME} aria-label="Download the free field guide (PDF)">
               {GUIDE_COVER_URL ? (
                 <img src={GUIDE_COVER_URL} alt="Easier To Find — the roofing company owner’s field guide" loading="lazy" width="320" height="414" />
               ) : (
@@ -277,8 +278,8 @@ export default function Roofers() {
                 {GUIDE_PAGES} pages on exactly how this works — Google Maps, Local Services Ads, real SEO, AI search, and
                 never losing a lead to a slow callback. Written so you can do it yourself if you want to.
               </p>
-              <a className="rf-cta rf-cta--big rf-cta--ghost" href={GUIDE_PDF_URL} target="_blank" rel="noopener">
-                Read the Free Guide (PDF) →
+              <a className="rf-cta rf-cta--big rf-cta--ghost" href={GUIDE_PDF_URL} download={GUIDE_FILENAME}>
+                Download the Free Guide (PDF) →
               </a>
               <p className="rf-guide-note">If you read it and want us to run it for you, cool. If not, you should still know this.</p>
             </div>
