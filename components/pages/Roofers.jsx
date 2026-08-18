@@ -339,13 +339,12 @@ const STYLES = `
 /* ── type ── */
 .rf-h1 {
   font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(38px, 9vw, 76px);
-  line-height: 0.98;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
+  font-weight: 700;
+  font-size: clamp(34px, 8vw, 68px);
+  line-height: 1.08;
+  letter-spacing: 0;
   margin: 0 auto;
-  max-width: 900px;
+  max-width: 880px;
 }
 .rf-h1-accent { color: hsl(var(--rf-accent-strong)); }
 .rf-h2 {
@@ -360,12 +359,13 @@ const STYLES = `
 }
 .rf-sub {
   font-size: clamp(17px, 4.4vw, 21px);
-  line-height: 1.45;
-  color: hsl(0 0% 82%);
-  max-width: 640px;
-  margin: 18px auto 24px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: hsl(0 0% 80%);
+  max-width: 620px;
+  margin: 20px auto 26px;
 }
-.rf-sub strong { color: hsl(0 0% 100%); }
+.rf-sub strong { font-weight: 600; color: hsl(0 0% 100%); }
 
 /* ── hero ── */
 .rf-hero {
