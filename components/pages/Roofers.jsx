@@ -28,6 +28,12 @@ const GUARANTEE_TERMS =
 const REVENUE_FLOOR = "$60k+/month";
 const QUALIFIER = `For roofing companies doing ${REVENUE_FLOOR}.`;
 
+// The free field guide (the value piece). Linked, not gated — no opt-in.
+// Leave GUIDE_PDF_URL empty ("") to hide the section until the PDF is uploaded.
+const GUIDE_PDF_URL = "/assets/roofers/easier-to-find-roofing-field-guide.pdf";
+const GUIDE_COVER_URL = ""; // optional cover image; "" = show a typographic cover card
+const GUIDE_PAGES = "59";
+
 // The social-proof stat shown where testimonials used to be.
 const PROOF_STAT = "10,000+";
 const PROOF_LINE = "people have run through our system.";
@@ -250,6 +256,36 @@ export default function Roofers() {
         </div>
       </section>
 
+      {/* ── 4b. The free field guide — the value piece. No opt-in, no gate. ── */}
+      {GUIDE_PDF_URL ? (
+        <section className="rf-section rf-section--tight" aria-label="Free field guide">
+          <div className="rf-guide">
+            <a className="rf-guide-cover" href={GUIDE_PDF_URL} target="_blank" rel="noopener" aria-label="Open the free field guide (PDF)">
+              {GUIDE_COVER_URL ? (
+                <img src={GUIDE_COVER_URL} alt="Easier To Find — the roofing company owner’s field guide" loading="lazy" width="320" height="414" />
+              ) : (
+                <div className="rf-guide-cover-card">
+                  <span>Easier<br />To Find.</span>
+                  <small>Field Guide · {GUIDE_PAGES} pages</small>
+                </div>
+              )}
+            </a>
+            <div className="rf-guide-body">
+              <div className="rf-guide-kicker">Free · No email required</div>
+              <h2 className="rf-h2 rf-guide-h2">Want the manual first?</h2>
+              <p>
+                {GUIDE_PAGES} pages on exactly how this works — Google Maps, Local Services Ads, real SEO, AI search, and
+                never losing a lead to a slow callback. Written so you can do it yourself if you want to.
+              </p>
+              <a className="rf-cta rf-cta--big rf-cta--ghost" href={GUIDE_PDF_URL} target="_blank" rel="noopener">
+                Read the Free Guide (PDF) →
+              </a>
+              <p className="rf-guide-note">If you read it and want us to run it for you, cool. If not, you should still know this.</p>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* ── 5. Who This Is For ── */}
       <section className="rf-whofor">
         This is for roofing companies doing <strong>{REVENUE_FLOOR}</strong>. If that&rsquo;s not you yet, keep
@@ -463,6 +499,75 @@ const STYLES = `
 }
 .rf-pillar p { margin: 0; font-size: 15px; line-height: 1.5; color: hsl(0 0% 78%); }
 
+
+/* ── free field guide ── */
+.rf-guide {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 28px;
+  align-items: center;
+  max-width: 860px;
+  margin: 0 auto;
+  background: hsl(0 0% 8%);
+  border: 1px solid hsl(0 0% 16%);
+  border-radius: 16px;
+  padding: 26px;
+}
+.rf-guide-cover { display: block; text-decoration: none; }
+.rf-guide-cover img,
+.rf-guide-cover-card {
+  width: 100%;
+  aspect-ratio: 8.5 / 11;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid hsl(0 0% 22%);
+  box-shadow: 0 18px 40px -16px rgba(0,0,0,0.85);
+  object-fit: cover;
+}
+.rf-guide-cover-card {
+  background: hsl(0 0% 4%);
+  color: #fff;
+  padding: 16px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 30px;
+  line-height: 0.95;
+  text-transform: uppercase;
+  border-bottom: 10px solid hsl(var(--rf-accent));
+}
+.rf-guide-cover-card small {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: hsl(0 0% 60%);
+}
+.rf-guide-kicker {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: hsl(var(--rf-accent-strong));
+  margin-bottom: 8px;
+}
+.rf-guide-h2 { text-align: left; margin-bottom: 10px; }
+.rf-guide-body p { color: hsl(0 0% 78%); font-size: 16px; line-height: 1.5; margin: 0 0 6px; }
+.rf-guide-note { font-size: 13px !important; color: hsl(0 0% 55%) !important; margin-top: 12px !important; }
+.rf-cta--ghost {
+  background: transparent;
+  color: hsl(var(--rf-accent-strong));
+  border: 2px solid hsl(var(--rf-accent-strong));
+  margin-top: 14px;
+}
+.rf-cta--ghost:hover { background: hsl(var(--rf-accent)); color: hsl(0 0% 4%); }
+@media (max-width: 720px) {
+  .rf-guide { grid-template-columns: 1fr; padding: 20px; text-align: center; }
+  .rf-guide-cover { max-width: 180px; margin: 0 auto; }
+  .rf-guide-h2 { text-align: center; }
+}
 
 /* ── who this is for ── */
 .rf-whofor {
