@@ -101,7 +101,7 @@ function CalendarEmbed() {
         style={{ width: "100%", border: "none", overflow: "hidden", display: "block", minHeight: 700 }}
         scrolling="no"
         id="rf_booking_calendar"
-        title="Pick a time for your 15-minute call"
+        title="Pick a time for your 30-minute call"
       />
     </div>
   );
@@ -144,7 +144,7 @@ function BookingModal({ open, onClose }) {
         <div className="rf-form-card rf-form-card--calendar">
           <h2 className="rf-form-headline">Lock In Your Call.</h2>
           <p className="rf-form-subline">
-            Pick a time below. It&rsquo;s a 15-minute call — we&rsquo;ll show you exactly what your #1 spot on Google
+            Pick a time below. It&rsquo;s a 30-minute call — we&rsquo;ll show you exactly what your #1 spot on Google
             Maps is worth. {QUALIFIER}
           </p>
           <CalendarEmbed />
@@ -296,7 +296,7 @@ export default function Roofers() {
       {/* ── 7. Final CTA — the calendar lives in the popup ── */}
       <section className="rf-section rf-section--center">
         <h2 className="rf-h2">Lock In Your Call</h2>
-        <p className="rf-form-intro">15 minutes. No pressure, no obligation. {QUALIFIER}</p>
+        <p className="rf-form-intro">30 minutes. No pressure, no obligation. {QUALIFIER}</p>
         <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
           Get My Roofing Plan →
         </button>
