@@ -2,6 +2,7 @@
 import React from "react";
 import { Layout, CTABlock } from "@/components/shared";
 import { Icon } from "@/components/icons";
+import MetaPixelEvents from "@/components/MetaPixelEvents";
 const { useEffect: useEffectB, useRef: useRefB } = React;
 
 // Embeds the Pierson Digital (GoHighLevel) booking widget.
@@ -46,6 +47,7 @@ function GHLBookingEmbed() {
 function BookACallPage() {
   return (
     <Layout active="book">
+      <MetaPixelEvents />
       <section className="cc-section cc-section--card cc-section--hero">
         <div className="cc-container">
           <div style={{
