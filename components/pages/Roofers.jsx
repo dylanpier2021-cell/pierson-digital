@@ -2,19 +2,15 @@
 // /roofers — application funnel for roofing company owners.
 // Standalone landing page: no site nav, no footer links. One job: qualify → book.
 import React from "react";
-const { useState, useEffect, useRef } = React;
+import MetaPixelEvents from "@/components/MetaPixelEvents";
+const { useEffect } = React;
 
 /* ══════════════════════════════════════════════════════════════════════════════
    ██  CONFIG — edit this block to launch. Nothing below it needs touching.  ██
    ══════════════════════════════════════════════════════════════════════════════ */
 
-// The 15-second 16:9 hero video (already in /public/assets/roofers/).
-// Swap the file or point this at a new URL to change it.
-const HERO_VIDEO_URL = "/assets/roofers/hero.mp4";
-const HERO_VIDEO_POSTER = ""; // optional poster image; "" = browser uses first frame
-
-// GoHighLevel calendar embed (booking widget URL). Every CTA opens this
-// straight in a popup — no opt-in form in between.
+// GoHighLevel calendar embed (booking widget URL). It renders inline on the
+// page — every CTA just scrolls down to it.
 const CALENDAR_EMBED_URL = "https://api.leadconnectorhq.com/widget/booking/3J6p4WzOCbo7hYmCDdsO";
 
 // The guarantee remedy line — one place to change the wording everywhere.
@@ -41,47 +37,6 @@ const PROOF_LINE = "people have run through our system.";
 
 /* ═══════════════════════════════ END CONFIG ═══════════════════════════════ */
 
-/* ── Hero video: autoplay muted, visible unmute toggle ─────────────────── */
-function HeroVideo() {
-  const videoRef = useRef(null);
-  const [muted, setMuted] = useState(true);
-
-  const toggleSound = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = !v.muted;
-    if (v.paused) v.play().catch(() => {});
-    setMuted(v.muted);
-  };
-
-  return (
-    <div className="rf-video-frame">
-      <video
-        ref={videoRef}
-        src={HERO_VIDEO_URL}
-        poster={HERO_VIDEO_POSTER || undefined}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-label="Pierson Digital roofing marketing intro video"
-      />
-      <button type="button" className="rf-sound-btn" onClick={toggleSound} aria-pressed={!muted}>
-        {muted ? (
-          <>
-            <SoundOffIcon /> Tap for sound
-          </>
-        ) : (
-          <>
-            <SoundOnIcon /> Mute
-          </>
-        )}
-      </button>
-    </div>
-  );
-}
-
 /* ── GHL calendar embed (same loader pattern as /book-a-call) ───────────── */
 function CalendarEmbed() {
   useEffect(() => {
@@ -107,73 +62,6 @@ function CalendarEmbed() {
   );
 }
 
-/* ── The booking popup: straight to the calendar, no opt-in. It stays
-      mounted while closed so the calendar is already loaded on open. ───── */
-function BookingModal({ open, onClose }) {
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    document.body.style.overflow = "hidden"; // lock page scroll behind the popup
-    if (cardRef.current) cardRef.current.focus({ preventScroll: true });
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
-
-  return (
-    <div
-      className={`rf-modal ${open ? "rf-modal--open" : ""}`}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Book your call"
-      aria-hidden={open ? undefined : "true"}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose(); // click the dark backdrop to close
-      }}
-    >
-      <div className="rf-modal-card" ref={cardRef} tabIndex={-1}>
-        <button type="button" className="rf-modal-close" onClick={onClose} aria-label="Close">
-          ×
-        </button>
-        <div className="rf-form-card rf-form-card--calendar">
-          <h2 className="rf-form-headline">Lock In Your Call.</h2>
-          <p className="rf-form-subline">
-            Pick a time below. It&rsquo;s a 30-minute call — we&rsquo;ll show you exactly what your #1 spot on Google
-            Maps is worth. {QUALIFIER}
-          </p>
-          <CalendarEmbed />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Small inline icons ────────────────────────────────────────────────── */
-function SoundOffIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-      <line x1="23" y1="9" x2="17" y2="15" />
-      <line x1="17" y1="9" x2="23" y2="15" />
-    </svg>
-  );
-}
-function SoundOnIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-    </svg>
-  );
-}
-
 /* ── What You Get — 4 pillars ───────────────────────────────────────────────── */
 const PILLARS = [
   {
@@ -196,19 +84,17 @@ const PILLARS = [
 
 /* ═══════════════════════════════ THE PAGE ═════════════════════════════════ */
 export default function Roofers() {
-  const [formOpen, setFormOpen] = useState(false);
-  const openForm = () => setFormOpen(true);
-
   return (
     <div className="rf-page" data-theme="dark">
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
+      <MetaPixelEvents />
 
       {/* ── Top bar: logo + one CTA. No nav. ── */}
       <header className="rf-topbar">
         <img src="/assets/logo-pd.png" alt="Pierson Digital" className="rf-logo" width="40" height="40" />
-        <button type="button" className="rf-cta rf-cta--small" onClick={openForm}>
+        <a className="rf-cta rf-cta--small" href="#rf-book">
           Get My Roofing Plan
-        </button>
+        </a>
       </header>
 
       {/* ── 1. Hero ── */}
@@ -220,10 +106,9 @@ export default function Roofers() {
           We put roofing companies at <strong>#1 on Google Maps</strong> — and guarantee you{" "}
           <strong>5 booked calls in your first 30 days</strong>.
         </p>
-        <HeroVideo />
-        <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
+        <a className="rf-cta rf-cta--big" href="#rf-book">
           Get My Roofing Plan →
-        </button>
+        </a>
       </section>
 
       {/* ── 2. The Guarantee Bar ── */}
@@ -293,17 +178,15 @@ export default function Roofers() {
         scrolling.
       </section>
 
-      {/* ── 7. Final CTA — the calendar lives in the popup ── */}
-      <section className="rf-section rf-section--center">
-        <h2 className="rf-h2">Lock In Your Call</h2>
-        <p className="rf-form-intro">30 minutes. No pressure, no obligation. {QUALIFIER}</p>
-        <button type="button" className="rf-cta rf-cta--big" onClick={openForm}>
-          Get My Roofing Plan →
-        </button>
+      {/* ── 7. Booking — the calendar is on the page, nothing to click ── */}
+      <section id="rf-book" className="rf-section rf-section--center rf-book">
+        <h2 className="rf-form-headline">Lock In Your Call.</h2>
+        <p className="rf-form-subline">
+          Pick a time below. It&rsquo;s a 30-minute call — we&rsquo;ll show you exactly what your #1 spot on Google
+          Maps is worth. {QUALIFIER}
+        </p>
+        <CalendarEmbed />
       </section>
-
-      {/* ── 8. The booking popup ── */}
-      <BookingModal open={formOpen} onClose={() => setFormOpen(false)} />
 
       {/* ── Minimal footer: no links, page has one job ── */}
       <footer className="rf-footer">© {new Date().getFullYear()} Pierson Digital · Marketing for roofing companies</footer>
@@ -315,6 +198,8 @@ export default function Roofers() {
    Page-scoped styles (rf-*). Builds on the site's dark-theme tokens from
    globals.css; adds a safety-orange accent for the roofing audience. */
 const STYLES = `
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 .rf-page {
   --rf-accent: 24 94% 53%;        /* safety orange */
   --rf-accent-strong: 24 100% 60%;
@@ -400,37 +285,6 @@ const STYLES = `
 .rf-cta--big { font-size: 19px; padding: 18px 34px; margin-top: 26px; }
 .rf-cta:disabled { opacity: 0.7; cursor: default; transform: none; }
 
-/* ── video frames ── */
-.rf-video-frame {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  max-width: 760px;
-  margin: 0 auto;
-  border-radius: 16px;
-  overflow: hidden;
-  background: hsl(0 0% 10%);
-  border: 1px solid hsl(0 0% 18%);
-  box-shadow: 0 24px 60px -20px rgba(0,0,0,0.6);
-}
-.rf-video-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.rf-sound-btn {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 9px 14px;
-  border-radius: var(--radius-pill);
-  background: rgba(0,0,0,0.72);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.28);
-  backdrop-filter: blur(6px);
-}
-.rf-sound-btn:hover { background: rgba(0,0,0,0.85); }
-.rf-sound-btn:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 2px; }
 /* ── guarantee bar ── */
 .rf-guarantee {
   background: hsl(var(--rf-accent));
@@ -583,78 +437,8 @@ const STYLES = `
 }
 .rf-whofor strong { color: hsl(0 0% 92%); }
 
-/* ── the popup ── */
-.rf-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-}
-.rf-modal--open { display: flex; }
-.rf-modal-card {
-  position: relative;
-  width: min(620px, 100%);
-  max-height: min(760px, 100%);
-  overflow-y: auto;
-  background: hsl(0 0% 9%);
-  border: 1px solid hsl(0 0% 22%);
-  border-radius: 20px;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.8);
-  animation: rf-modal-in var(--duration-normal) var(--ease-default);
-}
-.rf-modal-card:focus { outline: none; }
-@keyframes rf-modal-in {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rf-modal-card { animation: none; }
-}
-.rf-modal-close {
-  position: sticky;
-  top: 10px;
-  float: right;
-  margin: 10px 12px 0 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid hsl(0 0% 30%);
-  background: hsl(0 0% 14%);
-  color: hsl(0 0% 85%);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  z-index: 5;
-}
-.rf-modal-close:hover { background: hsl(0 0% 20%); color: #fff; }
-.rf-modal-close:focus-visible { outline: 3px solid hsl(var(--rf-accent-strong)); outline-offset: 2px; }
-/* fullscreen popup on phones — fill the screen, no wasted edges */
-@media (max-width: 720px) {
-  .rf-modal { padding: 0; }
-  .rf-modal-card {
-    width: 100%;
-    height: 100%;
-    max-height: none;
-    border-radius: 0;
-    border: none;
-  }
-}
-
-/* ── the form card (lives inside the popup) ── */
-.rf-form-intro { text-align: center; margin: -10px 0 26px; color: hsl(0 0% 62%); font-size: 15px; }
-.rf-form-card {
-  padding: 26px 24px 22px;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-/* ── calendar state ── */
-.rf-form-card--calendar { padding: 26px 16px 16px; }
+/* ── booking section: the calendar sits inline on the page ── */
+.rf-book { max-width: 820px; margin: 0 auto; scroll-margin-top: 16px; }
 .rf-form-headline {
   font-family: var(--font-display);
   font-weight: 900;
